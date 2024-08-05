@@ -14,18 +14,7 @@ export default class Home extends Component {
     previewContent: "",
     renameItemName: "",
     selectedItemId: null,
-    selectedDirectoryId: null,
-  };
-
-  componentDidMount() {
-    const savedItems = localStorage.getItem("explorerItems");
-    if (savedItems) {
-      this.setState({ items: JSON.parse(savedItems) });
-    }
-  }
-
-  saveItemsToLocalStorage = (items) => {
-    localStorage.setItem("explorerItems", JSON.stringify(items));
+    selectedDirectoryId: null, // Add this line
   };
 
   handleCreateFile = () => {
@@ -43,8 +32,10 @@ export default class Home extends Component {
         }
         return item;
       });
-      this.setState({ items: newItems, newFileName: "" });
-      this.saveItemsToLocalStorage(newItems);
+      this.setState({
+        items: newItems,
+        newFileName: "",
+      });
     }
   };
 
@@ -63,8 +54,10 @@ export default class Home extends Component {
         }
         return item;
       });
-      this.setState({ items: newItems, newDirName: "" });
-      this.saveItemsToLocalStorage(newItems);
+      this.setState({
+        items: newItems,
+        newDirName: "",
+      });
     }
   };
 
@@ -77,9 +70,9 @@ export default class Home extends Component {
         }))
         .filter((item) => item.id !== id);
 
-    const newItems = deleteRecursive(this.state.items);
-    this.setState({ items: newItems });
-    this.saveItemsToLocalStorage(newItems);
+    this.setState({
+      items: deleteRecursive(this.state.items),
+    });
   };
 
   handleRenameItem = (id) => {
@@ -94,24 +87,34 @@ export default class Home extends Component {
         return item;
       });
 
-    const newItems = renameRecursive(items);
-    this.setState({ items: newItems, renameItemName: "", selectedItemId: null });
-    this.saveItemsToLocalStorage(newItems);
+    this.setState({
+      items: renameRecursive(items),
+      renameItemName: "",
+      selectedItemId: null,
+    });
   };
 
   handleSelectItem = (id, type) => {
     if (type === "directory") {
-      this.setState({ selectedDirectoryId: id });
+      this.setState({
+        selectedDirectoryId: id,
+      });
     }
-    this.setState({ selectedItemId: id });
+    this.setState({
+      selectedItemId: id,
+    });
   };
 
   handlePreviewFile = (content) => {
-    this.setState({ previewContent: content });
+    this.setState({
+      previewContent: content,
+    });
   };
 
   handleChange = (event) => {
-    this.setState({ [event.target.name]: event.target.value });
+    this.setState({
+      [event.target.name]: event.target.value,
+    });
   };
 
   render() {
