@@ -27,11 +27,10 @@ It can be viewed
 8. Storing the Data in Database.
 
 ## Functionalities
-- On Demand Loading
+- On Demand Loading or Code Splitting
 - Implementation of React Redux
 - Implementation of React Router
 - Implementation of React Thunk
-
 
 
 
