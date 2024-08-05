@@ -3,6 +3,7 @@ import Header from "./Header/Header";
 import Explorer from "./FolderExplorer";
 import Path from "./PathBreadcrum/path";
 import Sidebar from "./Sidebar/Sidebar";
+import FileEditor from "./FileEditor";
 
 import "./Home.css";
 
@@ -15,6 +16,7 @@ export default class Home extends Component {
     renameItemName: "",
     selectedItemId: null,
     selectedDirectoryId: null,
+    editingFileContent: "",
   };
 
   componentDidMount() {
@@ -26,6 +28,7 @@ export default class Home extends Component {
 
   saveItemsToLocalStorage = (items) => {
     localStorage.setItem("explorerItems", JSON.stringify(items));
+    console.log("Saved items to localStorage:", JSON.parse(localStorage.getItem("explorerItems")));
   };
 
   handleCreateFile = () => {
@@ -99,9 +102,12 @@ export default class Home extends Component {
     this.saveItemsToLocalStorage(newItems);
   };
 
-  handleSelectItem = (id, type) => {
+  handleSelectItem = (id, type, content = "") => {
     if (type === "directory") {
       this.setState({ selectedDirectoryId: id });
+    }
+    if (type === "file") {
+      this.setState({ editingFileContent: content });
     }
     this.setState({ selectedItemId: id });
   };
@@ -110,12 +116,30 @@ export default class Home extends Component {
     this.setState({ previewContent: content });
   };
 
+  handleSaveFileContent = (content) => {
+    const { items, selectedItemId } = this.state;
+    const saveContentRecursive = (items) =>
+      items.map((item) => {
+        if (item.id === selectedItemId && item.type === "file") {
+          return { ...item, content };
+        } else if (item.children) {
+          return { ...item, children: saveContentRecursive(item.children) };
+        }
+        return item;
+      });
+
+    const newItems = saveContentRecursive(items);
+    this.setState({ items: newItems, editingFileContent: content });
+    this.saveItemsToLocalStorage(newItems);
+    console.log("Content saved to file:", content);
+  };
+
   handleChange = (event) => {
     this.setState({ [event.target.name]: event.target.value });
   };
 
   render() {
-    const { items, newFileName, newDirName, previewContent, renameItemName, selectedItemId } = this.state;
+    const { items, newFileName, newDirName, previewContent, renameItemName, selectedItemId, editingFileContent } = this.state;
 
     return (
       <div className="container-fluid full-screen">
@@ -157,10 +181,14 @@ export default class Home extends Component {
                 selectedItemId={selectedItemId}
                 onPreviewFile={this.handlePreviewFile}
               />
-              <div className="preview">
-                <h4>Preview</h4>
-                <p>{previewContent}</p>
-              </div>
+              {selectedItemId && editingFileContent !== null ? (
+                <FileEditor content={editingFileContent} onSave={this.handleSaveFileContent} />
+              ) : (
+                <div className="preview">
+                  <h4>Preview</h4>
+                  <p>{previewContent}</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
